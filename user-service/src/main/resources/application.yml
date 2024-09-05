@@ -1,0 +1,16 @@
+#SERVER PORT NUMBER
+server:
+  port: 8081
+
+#MYSQL DATABASE CONFIGURATION
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/microservices
+    username: root
+    password: Santhu@7022
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true

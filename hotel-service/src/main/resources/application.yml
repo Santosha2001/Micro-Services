@@ -1,0 +1,16 @@
+#PORT NUMBER
+server:
+  port: 8082
+
+#DATABASE CONFIGURATION
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/microservices
+    username: postgres
+    password: Santhu@7022
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true

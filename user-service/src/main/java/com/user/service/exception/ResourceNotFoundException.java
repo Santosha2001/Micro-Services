@@ -3,10 +3,18 @@ package com.user.service.exception;
 public class ResourceNotFoundException extends RuntimeException {
 
     public ResourceNotFoundException() {
-        super("The requested resource was not found.");
+        super("Resource not found");
     }
 
     public ResourceNotFoundException(String message) {
         super(message);
     }
+
+    /*public ResourceNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }*/
+
+    /*public ResourceNotFoundException(Throwable cause) {
+        super(cause);
+    }*/
 }

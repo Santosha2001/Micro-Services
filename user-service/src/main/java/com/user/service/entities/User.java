@@ -1,10 +1,7 @@
 package com.user.service.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,19 +12,17 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class User {
 
     @Id
-    private String id;
+    @Column(name = "user_id", nullable = false, unique = true)
+    private String userId;
 
-    @Column(length = 20)
-    private String username;
-
+    private String name;
     private String email;
     private String about;
 
-    /*
-     * @Transient -> will ignore the field to store in database.  */
     @Transient
-    private List<Rating> ratings = new ArrayList<Rating>();
+    private List<Rating> ratings = new ArrayList<>();
 }

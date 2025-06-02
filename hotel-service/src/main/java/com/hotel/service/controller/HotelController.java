@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/hotels")
+@RequestMapping("/api/hotels")
 public class HotelController {
 
     @Autowired
     private HotelService hotelService;
 
     //create hotel
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Hotel> createHotel(@RequestBody Hotel hotel) {
         Hotel saveHotel = hotelService.saveHotel(hotel);
         return ResponseEntity.status(201).body(saveHotel);
@@ -31,7 +31,7 @@ public class HotelController {
     }
 
     //get all hotels
-    @GetMapping
+    @GetMapping("/all-hotels")
     public ResponseEntity<List<Hotel>> getAllHotels() {
         List<Hotel> hotels = hotelService.getAllHotels();
         return ResponseEntity.ok(hotels);

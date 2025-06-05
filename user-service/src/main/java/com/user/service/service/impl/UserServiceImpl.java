@@ -4,6 +4,7 @@ import com.user.service.entities.Hotel;
 import com.user.service.entities.Rating;
 import com.user.service.entities.User;
 import com.user.service.exception.ResourceNotFoundException;
+import com.user.service.external.services.HotelService;
 import com.user.service.repository.UserRepository;
 import com.user.service.service.UserService;
 import org.slf4j.Logger;
@@ -29,6 +30,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private HotelService hotelService;
+
     @Override
     public User saveUser(User user) {
         String randomId = UUID.randomUUID().toString();
@@ -46,25 +50,22 @@ public class UserServiceImpl implements UserService {
 
 
         // Fetch USER rating from the RATING SERVICE
-        String userUrl = "http://localhost:8083/api/ratings/users/" + user.getUserId();
+        String userUrl = "http://RATING-SERVICE/api/ratings/users/" + user.getUserId();
         Rating[] ratingsOfUser = restTemplate.getForObject(userUrl, Rating[].class);
 
         // Convert the array of ratings to a List
         List<Rating> ratings = Arrays.stream(ratingsOfUser).toList();
 
-        /*List<Rating> ratingList = ratings.stream().map(rating -> {
-            // api call to HOTEL SERVICE to get hotel details for each rating
-            ResponseEntity<Hotel> hotelResponseEntity = restTemplate.getForEntity("http://localhost:8082/api/hotels/" + rating.getHotelId(), Hotel.class);
-            Hotel hotel = hotelResponseEntity.getBody();
-            rating.setHotel(hotel);
-
-            return rating;
-        }).collect(Collectors.toList());*/
         List<Rating> ratingList = ratings.stream().map(rating -> {
             try {
                 // API call to HOTEL SERVICE to get hotel details for each rating
-                ResponseEntity<Hotel> hotelResponseEntity = restTemplate.getForEntity("http://localhost:8082/api/hotels/" + rating.getHotelId(), Hotel.class);
-                Hotel hotel = hotelResponseEntity.getBody();
+                /*String hotelUrl="http://HOTEL-SERVICE/api/hotels/" + rating.getHotelId();
+                ResponseEntity<Hotel> hotelResponseEntity = restTemplate.getForEntity(hotelUrl, Hotel.class);
+                Hotel hotel = hotelResponseEntity.getBody();*/
+
+                // Service calling using Feign-client
+                Hotel hotel = hotelService.getHotel(rating.getHotelId());
+
                 rating.setHotel(hotel);
             } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
                 logger.error("Hotel not found for hotelId: {}", rating.getHotelId());

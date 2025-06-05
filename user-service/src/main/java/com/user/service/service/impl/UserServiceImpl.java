@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -45,29 +44,40 @@ public class UserServiceImpl implements UserService {
                         () -> new ResourceNotFoundException("User with given id not found in database: " + userId)
                 );
 
-        try {
-            // Fetch USER rating from the RATING SERVICE
-            String url = "http://localhost:8083/api/ratings/users/" + userId;
-            Rating[] ratingsOfUser = restTemplate.getForObject(url, Rating[].class);
-            // Convert array to list
-            List<Rating> ratings = Arrays.stream(ratingsOfUser).toList();
 
+        // Fetch USER rating from the RATING SERVICE
+        String userUrl = "http://localhost:8083/api/ratings/users/" + user.getUserId();
+        Rating[] ratingsOfUser = restTemplate.getForObject(userUrl, Rating[].class);
+
+        // Convert the array of ratings to a List
+        List<Rating> ratings = Arrays.stream(ratingsOfUser).toList();
+
+        /*List<Rating> ratingList = ratings.stream().map(rating -> {
             // api call to HOTEL SERVICE to get hotel details for each rating
-            List<Rating> ratingList = ratings.stream().map((rating) -> {
-                String hotelId = rating.getHotelId();
-                String hotelUrl = "http://localhost:8082/api/hotels/" + hotelId;
-                ResponseEntity<Hotel> hotelResponseEntity = restTemplate.getForEntity(hotelUrl + hotelId, Hotel.class);
+            ResponseEntity<Hotel> hotelResponseEntity = restTemplate.getForEntity("http://localhost:8082/api/hotels/" + rating.getHotelId(), Hotel.class);
+            Hotel hotel = hotelResponseEntity.getBody();
+            rating.setHotel(hotel);
+
+            return rating;
+        }).collect(Collectors.toList());*/
+        List<Rating> ratingList = ratings.stream().map(rating -> {
+            try {
+                // API call to HOTEL SERVICE to get hotel details for each rating
+                ResponseEntity<Hotel> hotelResponseEntity = restTemplate.getForEntity("http://localhost:8082/api/hotels/" + rating.getHotelId(), Hotel.class);
                 Hotel hotel = hotelResponseEntity.getBody();
                 rating.setHotel(hotel);
+            } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
+                logger.error("Hotel not found for hotelId: {}", rating.getHotelId());
+                rating.setHotel(null); // Handle gracefully by setting hotel to null
+            } catch (Exception e) {
+                logger.error("Error while fetching hotel details for hotelId {}: {}", rating.getHotelId(), e.getMessage());
+                rating.setHotel(null);
+            }
+            return rating;
+        }).collect(Collectors.toList());
 
-                return rating;
-            }).toList();
-            user.setRatings(ratingList);
-            logger.info("Ratings fetched successfully for user with id {}: {}", userId, ratingsOfUser);
-
-        } catch (Exception e) {
-            logger.error("Error while fetching ratings for user with id {}: {}", userId, e.getMessage());
-        }
+        logger.info("Ratings {}", ratingList);
+        user.setRatings(ratingList);
 
         return user;
     }
@@ -80,14 +90,21 @@ public class UserServiceImpl implements UserService {
             // Fetch all USERS and their RATING from RATING SERVICE
             for (User user : allUsers) {
                 String url = "http://localhost:8083/api/ratings/users/" + user.getUserId();
-                ArrayList<Rating> ratingsOfUser = restTemplate.getForObject(url, ArrayList.class);
+                Rating[] ratingsOfUser = restTemplate.getForObject(url, Rating[].class);
 
-                if (ratingsOfUser != null && !ratingsOfUser.isEmpty()) {
-                    user.setRatings(ratingsOfUser);
-                    logger.info("Ratings fetched successfully for user with id {}: {}", user.getUserId(), ratingsOfUser);
-                } else {
-                    logger.warn("No ratings found for user with id {}", user.getUserId());
-                }
+                List<Rating> ratings = Arrays.stream(ratingsOfUser).toList();
+                // api call to HOTEL SERVICE to get hotel details for each rating
+                List<Rating> ratingList = ratings.stream().map((rating) -> {
+                    String hotelId = rating.getHotelId();
+                    String hotelUrl = "http://localhost:8082/api/hotels/" + hotelId;
+                    ResponseEntity<Hotel> hotelResponseEntity = restTemplate.getForEntity(hotelUrl, Hotel.class);
+                    Hotel hotel = hotelResponseEntity.getBody();
+                    rating.setHotel(hotel);
+
+                    return rating;
+                }).collect(Collectors.toList());
+                user.setRatings(ratingList);
+                logger.info("Ratings fetched successfully for user with id {}: {}", user.getUserId(), ratingsOfUser);
             }
         } catch (Exception e) {
             // throw new RuntimeException(e);

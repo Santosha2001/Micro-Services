@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/ratings")
+@RequestMapping("/ratings")
 public class RatingController {
 
     @Autowired
     private RatingService ratingService;
 
     // create rating
-    @PostMapping("create")
+    @PostMapping
     public ResponseEntity<Rating> createRating(@RequestBody Rating rating) {
 
         Rating savedRating = ratingService.createRating(rating);

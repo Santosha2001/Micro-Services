@@ -16,16 +16,24 @@ spring:
       dialect: org.hibernate.dialect.MySQL8Dialect
 #    show-sql: true
 
-#  APPLICATION NAME
+  # APPLICATION NAME
   application:
     name: USER-SERVICE
 
+  # CONFIG SERVER IMPORT
+  config:
+    import: optional:configserver:http://localhost:8085
+
+  # PROFILE CONFIGURATION
+  profiles:
+    active: prod
+
 #EUREKA SERVER CONFIGURATION
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka
+#eureka:
+#  instance:
+#    prefer-ip-address: true
+#  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka

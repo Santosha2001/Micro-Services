@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
 
         // Fetch USER rating from the RATING SERVICE
-        String userUrl = "http://RATING-SERVICE/api/ratings/users/" + user.getUserId();
+        String userUrl = "http://RATING-SERVICE/ratings/users/" + user.getUserId();
         Rating[] ratingsOfUser = restTemplate.getForObject(userUrl, Rating[].class);
 
         // Convert the array of ratings to a List

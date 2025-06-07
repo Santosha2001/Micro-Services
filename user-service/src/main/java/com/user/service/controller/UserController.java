@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
     // Create a new user
-    @PostMapping("/create-user")
+    @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
         User saveUser = userService.saveUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(saveUser);
@@ -27,12 +27,12 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable String userId) {
         User userById = userService.getUser(userId);
-//        return ResponseEntity.status(HttpStatus.OK).body(userById);
+        // return ResponseEntity.status(HttpStatus.OK).body(userById);
         return ResponseEntity.ok(userById);
     }
 
     // Get all users
-    @GetMapping("/all-users")
+    @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }

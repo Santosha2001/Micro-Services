@@ -1,0 +1,15 @@
+server:
+  port: 8085
+
+# Application Name
+spring:
+  application:
+    name: CONFIG-SERVER
+
+# Git Configuration
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/Santosha2001/Micro-Services-Config
+          clone-on-start: true
